@@ -6,8 +6,19 @@ import os
 from datetime import datetime
 from bson import ObjectId
 from pymongo import MongoClient
+from pathlib import Path
 
-DEFAULT_URI = os.environ.get('MONGODB_URI', 'mongodb+srv://username:password@cluster.mongodb.net/')
+# Carregar variáveis de ambiente do .env
+env_path = Path(__file__).parent / '.env'
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ[key] = value
+
+DEFAULT_URI = os.environ.get('MONGODB_URI', 'mongodb://127.0.0.1:27017/dacdb')
 DEFAULT_DB = os.environ.get('MONGODB_DB', 'dacdb')
 DEFAULT_COLLECTION = os.environ.get('MONGODB_COLLECTION', 'usuarios')
 PORT = int(os.environ.get('PY_BACKEND_PORT', 5000))
@@ -15,7 +26,11 @@ PORT = int(os.environ.get('PY_BACKEND_PORT', 5000))
 
 def get_client():
     uri = DEFAULT_URI
-    client = MongoClient(uri, tls=True, tlsAllowInvalidCertificates=True, tlsAllowInvalidHostnames=True)
+    
+    client = MongoClient(
+        uri,
+        serverSelectionTimeoutMS=10000
+    )
     return client
 
 
@@ -89,6 +104,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self._set_headers(200)
             self.wfile.write(json.dumps(payload).encode('utf-8'))
         except Exception as exc:
+            print(f"Erro ao processar requisição /api/pessoas: {exc}")
+            import traceback
+            traceback.print_exc()
             self._set_headers(500)
             error_payload = {
                 'error': 'Erro ao consultar MongoDB',

@@ -1,6 +1,6 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient } = require('mongodb');
 
-const DEFAULT_URI = 'mongodb+srv://username:password@cluster.mongodb.net/';
+const DEFAULT_URI = 'mongodb://127.0.0.1:27017/dacdb';
 const DEFAULT_DB = process.env.MONGODB_DB || 'dacdb';
 const DEFAULT_COLLECTION = process.env.MONGODB_COLLECTION || 'usuarios';
 
@@ -14,27 +14,9 @@ async function ensureClient() {
       throw new Error('Defina a variável de ambiente MONGODB_URI com a string de conexão do MongoDB.');
     }
     console.log('MongoDB: criando cliente, tentando conectar...');
-    // Build client options, using minimal config similar to Python driver
-    // which connects successfully. Python doesn't use serverApi by default.
-    const clientOptions = {
-      retryWrites: true,
-      w: 'majority',
-      tls: true,
-      tlsAllowInvalidCertificates: true,
-      tlsAllowInvalidHostnames: true
-    };
-
-    // For debugging only: disable TLS validation when explicitly enabled
-    // Usage (PowerShell): $env:MONGODB_TLS_ALLOW_INVALID = 'true'; npm start
-    if (process.env.MONGODB_TLS_ALLOW_INVALID === 'false') {
-      console.log('MongoDB: TLS validation STRICT mode');
-      delete clientOptions.tlsAllowInvalidCertificates;
-      delete clientOptions.tlsAllowInvalidHostnames;
-    } else {
-      console.warn('⚠️  TLS invalid certificates/hostnames ALLOWED (similar to Python driver)');
-    }
-
-    client = new MongoClient(uri, clientOptions);
+    client = new MongoClient(uri, {
+      retryWrites: false
+    });
   }
 
   if (!client.topology) {

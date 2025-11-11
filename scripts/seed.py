@@ -1,10 +1,22 @@
 import os
 import random
+import os
+import random
 from datetime import datetime, timedelta
 from pymongo import MongoClient
+from pathlib import Path
+
+env_path = Path(__file__).parent.parent / '.env'
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ[key] = value
 
 # === Configurações ===
-URI = os.getenv("MONGODB_URI", "mongodb+srv://username:password@cluster.mongodb.net/")
+URI = os.getenv("MONGODB_URI", "mongodb://127.0.0.1:27017/dacdb")
 DB_NAME = os.getenv("MONGODB_DB", "dacdb")
 COLLECTION_NAME = os.getenv("MONGODB_COLLECTION", "usuarios")
 
@@ -99,15 +111,9 @@ def random_date_in_past(months=12):
 def main():
     print("Iniciando seed de dados...")
 
+    client = None
     try:
-        client = MongoClient(
-            URI,
-            tls=True,
-            tlsAllowInvalidCertificates=True,
-            tlsAllowInvalidHostnames=True,
-            retryWrites=True,
-            w="majority"
-        )
+        client = MongoClient(URI)
         db = client[DB_NAME]
         col = db[COLLECTION_NAME]
 
@@ -150,7 +156,8 @@ def main():
     except Exception as e:
         print(f"Erro durante seed: {e}")
     finally:
-        client.close()
+        if client:
+            client.close()
 
 
 if __name__ == "__main__":
