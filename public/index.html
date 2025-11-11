@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Provedores</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header>
+    <div class="branding">
+      <h1>Conectividade Municipal</h1>
+      <p>Visão geral dos provedores de internet por cidade</p>
+    </div>
+    <div class="status-chip">Layout demonstrativo</div>
+  </header>
+
+  <main>
+    <div id="dashboardFeedback" class="feedback hidden" role="alert"></div>
+
+    <section class="filters">
+      <div class="filter-group">
+        <label for="cityFilter">Cidade</label>
+        <select id="cityFilter">
+          <option value="todos">Todas</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="providerFilter">Provedora</label>
+        <select id="providerFilter">
+          <option value="todos">Todas</option>
+        </select>
+      </div>
+      <button id="clearFilters" class="clear-btn">Limpar filtros</button>
+    </section>
+
+    <section class="highlights" id="highlights"></section>
+
+    <section class="chart-section">
+      <div class="section-header">
+        <h2>Distribuição por provedor</h2>
+        <span id="totalCount" class="chip light">0 registros</span>
+      </div>
+      <div class="chart" id="providerChart">
+        <div class="chart-visual" id="chartVisual"></div>
+        <div class="chart-legend" id="providerLegend"></div>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="section-header">
+        <h2>Detalhes das pessoas</h2>
+        <span id="resultsCount" class="chip">0 resultados</span>
+      </div>
+      <div id="resultsList" class="cards"></div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>

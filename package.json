@@ -1,0 +1,17 @@
+{
+  "name": "dac-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard em Node.js puro para visualização de provedores de internet.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "python scripts/seed.py",
+    "dev": "set MONGODB_TLS_ALLOW_INVALID=true && npm start"
+  },
+  "dependencies": {
+    "mongodb": "^7.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
