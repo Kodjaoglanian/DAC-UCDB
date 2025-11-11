@@ -29,11 +29,52 @@ MONGODB_COLLECTION=usuarios
 - `server.js` - servidor HTTP estático + endpoint `GET /api/pessoas` que retorna os documentos do MongoDB.
 - `src/database.js` - integração com MongoDB (usa `MONGODB_URI` se definida).
 - `public/` - frontend estático (HTML/CSS/JS).
-- `mongodb.py` - script Python de exemplo para popular a coleção (fornecido pelo usuário).
+**⚠️ Importante:** Nunca commite credenciais reais no repositório. Use variáveis de ambiente.
 
 ## Como rodar
 
-### Opção 1: Script automático (recomendado)
+### Opção 1: Docker (recomendado para produção)
+
+1. **Configure as variáveis de ambiente:**
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```bash
+MONGODB_URI=mongodb+srv://seu_usuario:sua_senha@seu_cluster.mongodb.net/
+MONGODB_DB=dacdb
+MONGODB_COLLECTION=usuarios
+```
+
+2. **Inicie os containers:**
+
+```bash
+docker-compose up -d
+```
+
+3. **Popular dados no MongoDB:**
+
+Linux/Mac:
+```bash
+bash seed-docker.sh
+```
+
+Windows (PowerShell):
+```powershell
+.\seed-docker.ps1
+```
+
+4. **Acesse o dashboard:**
+
+`http://localhost:3000`
+
+5. **Parar os containers:**
+
+```bash
+docker-compose down
+```
+
+### Opção 2: Script Python local (desenvolvimento)
+
 Execute tudo de uma vez com o script Python:
 
 ```bash
@@ -48,7 +89,7 @@ Este script:
 
 Acesse `http://localhost:3000` no navegador.
 
-### Opção 2: Manual
+### Opção 3: Manual
 Se preferir executar passo a passo:
 
 1. Instalar dependências:
@@ -77,6 +118,44 @@ npm start
 ```
 
 Acesse `http://localhost:3000`.
+
+## Estrutura do Projeto
+
+```
+DAC/
+├── backend.py              # Backend Python (API REST)
+├── server.js              # Servidor Node.js (frontend)
+├── public/                # Arquivos estáticos
+│   ├── index.html        # Interface do dashboard
+│   ├── styles.css        # Estilos
+│   └── script.js         # Lógica frontend
+├── src/
+│   └── database.js       # Conexão MongoDB (Node.js - não usado)
+├── scripts/
+│   └── seed.py           # Script para popular dados
+├── Dockerfile            # Container do backend Python
+├── Dockerfile.frontend   # Container do frontend Node.js
+├── docker-compose.yml    # Orquestração de containers
+├── requirements.txt      # Dependências Python
+├── package.json          # Dependências Node.js
+├── .env.example          # Template de variáveis de ambiente
+└── README.md             # Este arquivo
+```
+
+## Arquitetura
+
+- **Frontend**: Servidor Node.js servindo arquivos estáticos (HTML/CSS/JS)
+- **Backend**: API Python com pymongo para conexão MongoDB Atlas
+- **Banco de Dados**: MongoDB Atlas (cloud)
+- **Containerização**: Docker + Docker Compose
+
+## Tecnologias
+
+- Node.js (servidor estático)
+- Python 3.9+ (API REST)
+- MongoDB Atlas (banco de dados)
+- Docker & Docker Compose
+- HTML/CSS/JavaScript (frontend)
 
 ## Erro TLS / SSL ao conectar ao MongoDB Atlas
 Se, ao tentar carregar `/api/pessoas`, você vir um erro com `tls` / `SSL alert number 80` ou `MongoServerSelectionError`, experimente os passos abaixo:

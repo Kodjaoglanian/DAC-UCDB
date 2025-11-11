@@ -1,0 +1,22 @@
+# Dockerfile para frontend Node.js
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+
+# Instalar dependências
+RUN npm ci --only=production
+
+# Copiar código fonte
+COPY server.js .
+COPY public/ ./public/
+COPY src/ ./src/
+
+# Expor porta do frontend
+EXPOSE 3000
+
+# Comando para rodar servidor Node.js
+CMD ["npm", "start"]
