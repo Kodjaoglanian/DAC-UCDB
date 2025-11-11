@@ -3,6 +3,9 @@ const { readFile, stat } = require('fs/promises');
 const path = require('path');
 const { fetchPeople } = require('./src/database');
 
+// Carregar variáveis de ambiente do .env
+require('dotenv').config();
+
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 

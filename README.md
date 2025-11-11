@@ -6,19 +6,29 @@ Dashboard em Node.js puro para visualização de provedores de internet com dado
 
 ## Configuração
 
-Antes de executar, configure a conexão com MongoDB:
+### 1. Arquivo de Ambiente
 
-### Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto ou defina as variáveis de ambiente:
+Copie o arquivo de exemplo e configure conforme seu ambiente:
 
 ```bash
-# URI de conexão do MongoDB Atlas
-MONGODB_URI=mongodb+srv://seu_usuario:sua_senha@seu_cluster.mongodb.net/
+cp .env.example .env
+```
 
-# Opcional: nome do banco e coleção
-MONGODB_DB=dacdb
-MONGODB_COLLECTION=usuarios
+Edite o arquivo `.env` com suas configurações:
+
+#### Para desenvolvimento local:
+```bash
+MONGODB_URI=mongodb://127.0.0.1:27017/dacdb
+```
+
+#### Para MongoDB Atlas (nuvem):
+```bash
+MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/dacdb?retryWrites=true&w=majority
+```
+
+#### Para MongoDB em container/servidor remoto:
+```bash
+MONGODB_URI=mongodb://seu-servidor:27017/dacdb
 ```
 
 **⚠️ Importante:** Nunca commite credenciais reais no repositório. Use variáveis de ambiente.
@@ -120,6 +130,35 @@ npm start
 ```
 
 Acesse `http://localhost:3000`.
+
+## Hospedagem em Nuvem
+
+Para hospedar o dashboard em serviços como Heroku, Railway, Render, etc.:
+
+### 1. Configure o MongoDB
+- Use MongoDB Atlas ou outro serviço de MongoDB na nuvem
+- Configure a `MONGODB_URI` no arquivo `.env` com a string de conexão da nuvem
+
+### 2. Configure as Variáveis de Ambiente
+Na plataforma de hospedagem, defina as seguintes variáveis de ambiente:
+- `MONGODB_URI` - String de conexão do MongoDB
+- `MONGODB_DB` - Nome do banco (padrão: dacdb)
+- `MONGODB_COLLECTION` - Nome da coleção (padrão: usuarios)
+- `PORT` - Porta do servidor (geralmente definida automaticamente pela plataforma)
+
+### 3. Execute o Seed dos Dados
+Após configurar o banco, execute o seed para popular os dados:
+```bash
+python scripts/seed.py
+```
+
+### 4. Inicie a Aplicação
+O comando de start pode variar por plataforma, mas geralmente:
+```bash
+npm start
+```
+
+**Nota:** O backend Python (`backend.py`) deve rodar em paralelo ou ser convertido para uma API REST hospedada separadamente.
 
 ## Estrutura do Projeto
 

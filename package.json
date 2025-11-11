@@ -9,6 +9,7 @@
     "dev": "set MONGODB_TLS_ALLOW_INVALID=true && npm start"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "mongodb": "^7.0.0"
   },
   "keywords": [],

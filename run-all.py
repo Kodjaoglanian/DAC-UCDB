@@ -68,21 +68,26 @@ def install_mongodb() -> bool:
         return True
 
     print("🛠 MongoDB não encontrado. Tentando instalar localmente via APT...")
-    commands = [
+    
+    # Primeiro tenta instalar mongodb-org (versão oficial)
+    commands_official = [
+        ("Importando chave GPG do MongoDB", 
+         "wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add - 2>/dev/null || true"),
+        ("Adicionando repositório MongoDB", 
+         'echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list 2>/dev/null || true'),
         ("Atualizando repositórios APT", "sudo apt-get update -y"),
-        ("Instalando pacote mongodb", "sudo apt-get install -y mongodb")
+        ("Instalando MongoDB", "sudo apt-get install -y mongodb-org 2>/dev/null || sudo apt-get install -y mongodb")
     ]
 
-    for description, command in commands:
-        if not run_command(command, description, capture=False):
-            print("❌ Não foi possível instalar o MongoDB automaticamente. Instale manualmente e execute novamente.")
-            return False
+    for description, command in commands_official:
+        run_command(command, description, check=False, capture=False)
 
     if ensure_mongod_binary():
         print("✅ MongoDB instalado com sucesso!")
         return True
 
     print("❌ MongoDB ainda não está disponível após tentativa de instalação.")
+    print("💡 Instale manualmente: sudo apt-get install mongodb")
     return False
 
 
@@ -172,37 +177,46 @@ def stop_local_mongodb(process, log_handle):
 
 def main():
     print("🚀 Iniciando configuração do Dashboard DAC...")
+    print("=" * 60)
 
     # 0. Carregar variáveis de ambiente
     load_env_file()
 
     # 1. Garantir MongoDB local
+    print("\n📦 Configurando MongoDB...")
     mongo_process, mongo_log_handle = start_local_mongodb()
 
     # 2. Instalar dependências Node.js
+    print("\n📦 Instalando dependências Node.js...")
     if not run_command("npm install", "Instalando dependências Node.js"):
         stop_local_mongodb(mongo_process, mongo_log_handle)
         sys.exit(1)
 
     # 3. Instalar pymongo (Python)
-    if not run_command("pip install pymongo --break-system-packages", "Instalando pymongo"):
-        stop_local_mongodb(mongo_process, mongo_log_handle)
-        sys.exit(1)
+    print("\n🐍 Instalando dependências Python...")
+    if not run_command("pip3 install pymongo --break-system-packages 2>/dev/null || pip3 install pymongo", "Instalando pymongo", check=False):
+        print("⚠️  Aviso: pymongo pode não ter sido instalado corretamente")
 
-    # 4. Popular dados no MongoDB (executando diretamente em Python)
-    if not run_command("python scripts/seed.py", "Populando dados no MongoDB", check=False):
-        stop_local_mongodb(mongo_process, mongo_log_handle)
-        sys.exit(1)
+    # 4. Popular dados no MongoDB
+    print("\n💾 Populando dados no MongoDB...")
+    if not run_command("python3 scripts/seed.py", "Populando dados no MongoDB", check=False):
+        print("⚠️  Aviso: Seed pode ter falhas, mas continuando...")
 
     # 5. Iniciar backend Python em background
-    print("🐍 Iniciando backend Python...")
+    print("\n🐍 Iniciando backend Python na porta 5000...")
     backend_process = subprocess.Popen([sys.executable, "backend.py"])
     time.sleep(3)  # Aguardar iniciar
 
-    # 6. Iniciar servidor Node.js
-    print("🌐 Iniciando servidor Node.js...")
-    print("✅ Tudo pronto! Acesse http://localhost:3000")
-    print("Para parar: pressione Ctrl+C")
+    # 6. Obter porta do servidor Node.js
+    port = os.environ.get('PORT', '3000')
+    
+    # 7. Iniciar servidor Node.js
+    print(f"\n🌐 Iniciando servidor Node.js na porta {port}...")
+    print("=" * 60)
+    print(f"✅ Tudo pronto! Acesse http://localhost:{port}")
+    print("💡 Para acessar de outra máquina: http://<IP-DA-VM>:" + port)
+    print("🛑 Para parar: pressione Ctrl+C")
+    print("=" * 60)
 
     try:
         # Executar npm start em foreground
