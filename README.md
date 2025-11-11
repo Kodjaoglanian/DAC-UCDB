@@ -51,16 +51,18 @@ MONGODB_COLLECTION=usuarios
 docker-compose up -d
 ```
 
-3. **Popular dados no MongoDB:**
+3. **Popular dados no MongoDB (opcional):**
 
-Linux/Mac:
+Opção A: definir na subida dos containers (via .env):
 ```bash
-bash seed-docker.sh
+# no arquivo .env
+SEED_ON_START=true
 ```
+Depois rode novamente `docker-compose up -d`.
 
-Windows (PowerShell):
-```powershell
-.\seed-docker.ps1
+Opção B: executar manualmente após subir os containers:
+```bash
+docker exec -it dac-app python3 scripts/seed.py
 ```
 
 4. **Acesse o dashboard:**
@@ -133,8 +135,7 @@ DAC/
 │   └── database.js       # Conexão MongoDB (Node.js - não usado)
 ├── scripts/
 │   └── seed.py           # Script para popular dados
-├── Dockerfile            # Container do backend Python
-├── Dockerfile.frontend   # Container do frontend Node.js
+├── Dockerfile            # Container único (Node + Python)
 ├── docker-compose.yml    # Orquestração de containers
 ├── requirements.txt      # Dependências Python
 ├── package.json          # Dependências Node.js
